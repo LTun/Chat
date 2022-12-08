@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat beta-v.0.1</title>
+    <style>
+        ol.messages {
+            list-style: none;
+            padding: 0;
+            display: block;
+            width: 600px;
+            height: 700px;
+            overflow: scroll;
+        }
+        
+        .messages li {
+            display: block;
+        }
+
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        .name, .body, .oclock {
+            display: inline-block;
+            overflow: hidden;
+            float: left;
+        }
+        .name {
+            width: 100px;
+            height: 100%;
+        }
+        .body {
+            width: 380px;
+        }
+        .oclock {
+            height: 100%;
+            float: right;
+        }
+    </style>
+</head>
+<body>
+    Username:&nbsp;&nbsp;&nbsp;<input class="username" type="text"> <br>
+    <br>
+    <br>
+    <input class="input" type="text"><button>Send</button>
+    <ol class="messages">
+    </ol>
+    <script>
+        var ol = document.querySelector('.messages');
+        var input = document.querySelector('.input');
+        var button = document.querySelector('button');
+        var username = document.querySelector('.username');
+
+        var dataCount = 0;
+
+        function createMessage(uid, content, time) {
+            let name = document.createElement('p');
+            let body = document.createElement('p');
+            let oclock = document.createElement('p');
+            let message = document.createElement('li');
+
+            name.innerHTML = uid + ':';
+            body.innerHTML = content;
+            oclock.innerHTML = time;
+
+            // name.style.display = 'inline-block';
+            // name.style.height = '100%';
+            // name.style.width = '100px';
+            // name.style.overflow = 'hidden';
+            // name.style.cssFloat = 'left';
+            // body.style.display = 'inline-block';
+            // body.style.width = '380px';
+            // body.style.cssFloat = 'left';
+            // oclock.style.display = 'inline-block';
+            // oclock.style.cssFloat = 'right';
+
+            name.className = 'name';
+            body.className = 'body';
+            oclock.className = 'oclock';
+
+            message.className = 'clearfix';
+
+            message.appendChild(name);
+            message.appendChild(body);
+            message.appendChild(oclock);
+            ol.appendChild(message);
+        }
+        
+        function postMessage(username, msg) {
+            let object = {username: username, msg: msg};
+
+            console.log(object);
+
+            let req = new XMLHttpRequest();
+
+            req.open('POST', 'http://192.168.1.146:8080/');
+            req.send(JSON.stringify(object));
+        }
+
+        button.addEventListener('click', (event) => {
+            if (input.value) {
+                if (username.value) {
+                    let time = new Date();
+                    // createMessage(username.value, input.value, time.getHours() + 'h' + time.getMinutes() + 'm');
+                    postMessage(username.value, input.value);
+                    input.value = '';
+                }
+                else {
+                    alert('Please enter your name.');
+                }
+            }
+        });
+
+        function refreshMessages() {
+            let req = new XMLHttpRequest();
+            req.open('GET', 'http://192.168.1.146:8080/data');
+
+            req.onreadystatechange = function() {
+                if (this.readyState === 4 && this.status === 200) {
+                    let data = JSON.parse(this.responseText);
+
+                    console.log(ol.scrollTop, ol.scrollHeight)
+
+                    let scroll = false;
+                    if (ol.scrollTop + ol.clientHeight === ol.scrollHeight)
+                        scroll = true;
+
+                    for (let i = dataCount; i < data.length; i++) {
+                        console.log('create');
+                        createMessage(data[i].username, data[i].msg, data[i].time);
+                    }
+                    if (scroll)
+                        ol.scrollTop = ol.scrollHeight;
+
+                    dataCount = data.length;
+                    console.log(data);
+
+                    console.log(ol.scrollTop, ol.scrollHeight)
+                }
+            }
+
+            try {
+                req.send();
+            }
+            catch (err) {
+                console.log(err.message);
+                console.log('GET request failed: data')
+            }
+
+        }
+
+        // http get data
+        setInterval(function() {
+            let req = new XMLHttpRequest();
+            req.open('GET', 'http://192.168.1.146:8080/dataCount');
+            req.onreadystatechange = function() {
+                if (this.readyState === 4 && this.status === 200) {
+                    if (this.responseText != dataCount) {
+                        refreshMessages();
+                    }
+                }
+            }
+
+            try {
+                req.send();
+            }
+            catch (err) {
+                console.log(err.message);
+                console.log('GET request failed: dataCount');
+            }
+        }, 1000);
+
+        // show data with length
+
+        // referesh width setInterval()
+    </script>
+</body>
+</html>

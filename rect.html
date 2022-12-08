@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LTun Home</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        .square {
+            border: 2px solid rgb(78, 78, 230);
+            background-color: rgba(0, 0, 255, 0.37);
+            position: absolute;
+            display: none;
+            animation: colorful 4s linear infinite;
+        }
+        h1 {
+            text-align: center;
+            cursor: default;
+        }
+        @keyframes colorful {
+            0% {background-color: rgba(255, 0, 0, 0.5);}
+            33% { background-color: rgba(0, 255, 0, 0.5);}
+            66% {background-color: rgba(0, 0, 255, 0.5);}
+            100% { background-color: rgba(255, 0, 0, 0.5);}
+        }
+    </style>
+</head>
+<body>
+    <h1>Try to grab with your mouse :)</h1>
+    <div class="square"></div>
+    <script>
+        var sqr = document.querySelector(".square");
+        var selectVisible = false;
+        var startPoint = {x:0, y:0};
+
+        // disable text selection of the h1 in page
+        document.addEventListener("selectstart", function(event)
+        {
+            event.preventDefault();
+        });
+
+        // rect selection codes start
+        document.addEventListener("mousedown", function(event)
+        {
+            selectVisible = true;
+
+            startPoint.x = event.pageX;
+            startPoint.y = event.pageY;
+
+            // init rect selection
+            sqr.style.width = "0px";
+            sqr.style.height = "0px";
+            sqr.style.top = startPoint.y + "px";
+            sqr.style.left = startPoint.x + "px";
+
+            sqr.style.display = "block";
+        });
+
+        // make rect invisible
+        document.addEventListener("mouseup", function()
+        {
+            selectVisible = false;
+            sqr.style.display = "none";
+        });
+
+        document.addEventListener("mousemove", function(event)
+        {
+            if (selectVisible)
+            {
+                // get length
+                let width = event.pageX - startPoint.x;
+                let height = event.pageY - startPoint.y;
+
+                // move square
+                if (width >= 0)
+                {
+                    sqr.style.left = startPoint.x + "px";
+                }
+                else 
+                {
+                    sqr.style.left = (startPoint.x + width) + "px";
+                }
+                if (height >= 0)
+                {
+                    sqr.style.top = startPoint.y + "px";
+                }
+                else 
+                {
+                    sqr.style.top = (startPoint.y + height) + "px";
+                }
+
+                // set rect size
+                if (width < 0)
+                    sqr.style.width = (width * -1) + "px";
+                else
+                    sqr.style.width = width + "px";
+                    
+
+                if (height < 0)
+                    sqr.style.height = (height * -1) + "px";
+                else
+                    sqr.style.height = height + "px";
+            }
+        });
+    </script>
+</body>
+</html>
