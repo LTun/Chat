@@ -5,6 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat beta-v.0.1</title>
+    <script>
+        // server ip
+        var hostIp = 'http://192.168.1.146:8080'
+    </script>
     <style>
         ol.messages {
             list-style: none;
@@ -98,7 +102,7 @@
 
             let req = new XMLHttpRequest();
 
-            req.open('POST', 'http://192.168.1.146:8080/post');
+            req.open('POST', hostIp + '/post');
 			
 			req.onreadystatechange = function() {
 				if (this.readyState === 4 && this.status === 200) {
@@ -138,7 +142,7 @@
 
         function refreshMessages() {
             let req = new XMLHttpRequest();
-            req.open('GET', 'http://192.168.1.146:8080/data');
+            req.open('GET', hostIp + '/data');
 
             req.onreadystatechange = function() {
                 if (this.readyState === 4 && this.status === 200) {

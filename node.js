@@ -122,22 +122,22 @@ http.createServer((request, response) => {
         }
     }
     else if (request.url === '/') {
-        response.writeHead(200, {'Content-Type': 'text/html', 'Access-Control-Allow-Origin': 'http://192.168.1.146:8080'});
+        response.writeHead(200, {'Content-Type': 'text/html'});
         response.end(index);
         console.log('index');
     }
     else if (isUrlCorrect('/dataCount', request.url)) {
-        response.writeHead(200, {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': 'http://192.168.1.146:8080'});
+        response.writeHead(200, {'Content-Type': 'text/plain'});
         response.end(String(data.length));
         console.log('dataCount');
     }
     else if (isUrlCorrect('/data', request.url)) {
-        response.writeHead(200, {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': 'http://192.168.1.146:8080'});
+        response.writeHead(200, {'Content-Type': 'text/plain'});
         response.end(JSON.stringify(data));
         console.log('data');
     }
     else if (isUrlCorrect('/rect', request.url)) {
-        response.writeHead(200, {'Content-Type': 'text/html', 'Access-Control-Allow-Origin': 'http://192.168.1.146:8080'});
+        response.writeHead(200, {'Content-Type': 'text/html'});
         response.end(rect);
         console.log('rect');
     }
