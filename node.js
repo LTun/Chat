@@ -84,8 +84,8 @@ function isUrlCorrect(url1, url2) {
     return true;
 }
 
-function writeData(data) {
-    fs.writeFile('data/data.txt', data, (err) => {
+function writeData() {
+    fs.writeFile('data/data.txt', JSON.stringify(data), (err) => {
         if (err) {
             console.log(err.message);
             console.log('Cannot create file "data/data.txt"');
@@ -97,24 +97,29 @@ http.createServer((request, response) => {
     console.log();
     console.log(request.socket.remoteAddress);
     console.log(request.url);
-    if (request.method === 'POST') {
-        let body = '';
+    if (isUrlCorrect('/post', request.url)) {
+        if (request.method === 'POST') {
+            let body = '';
+    
+            request.on('data', (data2) => {
+                body += data2;
+    
+                if (body.length > 1e6)
+                    request.destroy();
+            });
+            request.on('end', () => {
+                tempData = JSON.parse(body);
+                let time = new Date();
+                tempData['time'] = time.getHours() + 'h' + time.getMinutes() + 'm';
+                data.push(tempData);
+                writeData();
+    
+                console.log(tempData);
+            });
 
-        request.on('data', (data2) => {
-            body += data2;
-
-            if (body.length > 1e6)
-                request.destroy();
-        });
-        request.on('end', () => {
-            tempData = JSON.parse(body);
-            let time = new Date();
-            tempData['time'] = time.getHours() + 'h' + time.getMinutes() + 'm';
-            data.push(tempData);
-            writeData(JSON.stringify(data));
-
-            console.log(tempData);
-        });
+            response.writeHead(200);
+            response.end();
+        }
     }
     else if (request.url === '/') {
         response.writeHead(200, {'Content-Type': 'text/html', 'Access-Control-Allow-Origin': 'http://192.168.1.146:8080'});

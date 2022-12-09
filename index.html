@@ -98,14 +98,34 @@
 
             let req = new XMLHttpRequest();
 
-            req.open('POST', 'http://192.168.1.146:8080/');
+            req.open('POST', 'http://192.168.1.146:8080/post');
+			
+			req.onreadystatechange = function() {
+				if (this.readyState === 4 && this.status === 200) {
+					console.log(this);
+				}
+			}
+			
             req.send(JSON.stringify(object));
         }
+
+        input.addEventListener('keypress', function(event) {
+            if (event.keyCode == 13 || event.which == 13) {
+                if (username.value != '') {
+                    if (input.value) {
+                        postMessage(username.value, input.value);
+                        input.value = '';
+                    }
+                }
+                else {
+                    alert('Please enter your name.');
+                }
+            }
+        });
 
         button.addEventListener('click', (event) => {
             if (input.value) {
                 if (username.value) {
-                    let time = new Date();
                     // createMessage(username.value, input.value, time.getHours() + 'h' + time.getMinutes() + 'm');
                     postMessage(username.value, input.value);
                     input.value = '';
