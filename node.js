@@ -5,12 +5,17 @@ var fs = require('fs');
 
 // var qs = require('queryString');
 
-var index = fs.readFileSync('index.html', (err) => {
+const index = fs.readFileSync('index.html', (err) => {
     console.log('fs.readFileSync: cannot read file "index.html"');
     console.log(err.message);
 });
 
-var rect = fs.readFileSync('rect.html', (err) => {
+const rect = fs.readFileSync('rect.html', (err) => {
+    console.log('fs.readFileSync: cannot read file "rect.html"');
+    console.log(err.message);
+});
+
+const error404 = fs.readFileSync('error404.html', (err) => {
     console.log('fs.readFileSync: cannot read file "rect.html"');
     console.log(err.message);
 });
@@ -143,8 +148,8 @@ http.createServer((request, response) => {
         console.log('rect');
     }
     else {
-        response.writeHead(404);
-        response.end();
+        response.writeHead(200, {'Content-Type': 'text/html'});
+        response.end(error404);
         console.log('404');
     }
     
