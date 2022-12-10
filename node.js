@@ -45,6 +45,7 @@ var rect = fs.readFileSync('rect.html', (err) => {
 // }
 
 var data = new Array();
+var stringData = new Array();
 var tempData;
 
 try {
@@ -57,9 +58,11 @@ try {
 
     try {
         data = JSON.parse(rawData);
+        // ignore ']' at end of JSON
+        stringData.push(rawData.splice(0, rawData.length - 1));
     }
     catch (err) {
-        //
+        stringData.push('[');
     }
 }
 catch (err) {
@@ -85,7 +88,25 @@ function isUrlCorrect(url1, url2) {
 }
 
 function writeData() {
-    fs.writeFile('data/data.txt', JSON.stringify(data), (err) => {
+    if (stringData.length) {
+        fs.writeFile('data/data.txt', '[' + stringData[0], (err) => {
+            if (err) {
+                console.log(err.message);
+                console.log('Cannot create file "data/data.txt"');
+            }
+        });
+        
+        for (let i = 2; i < stringData.length; i++) {
+            fs.appendFile('data/data.txt', ',' + stringData[i], (err) => {
+                if (err) {
+                    console.log(err.message);
+                    console.log('Cannot create file "data/data.txt"');
+                }
+            });
+    }
+    }
+
+    fs.appendFile('data/data.txt', ']', (err) => {
         if (err) {
             console.log(err.message);
             console.log('Cannot create file "data/data.txt"');
