@@ -104,7 +104,7 @@ http.createServer((request, response) => {
     console.log(request.url);
 
     if (isUrlCorrect('/dataCount', request.url)) {
-        response.writeHead(200, {'Content-Type': 'text/plain'});
+        response.writeHead(200, {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*'});
         response.end(String(data.length));
         console.log('dataCount');
     }
@@ -134,22 +134,22 @@ http.createServer((request, response) => {
         }
     }
     else if (isUrlCorrect('/data', request.url)) {
-        response.writeHead(200, {'Content-Type': 'text/plain'});
+        response.writeHead(200, {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*'});
         response.end(JSON.stringify(data));
         console.log('data');
     }
     else if (request.url === '/') {
-        response.writeHead(200, {'Content-Type': 'text/html'});
+        response.writeHead(200, {'Content-Type': 'text/html', 'Access-Control-Allow-Origin': '*'});
         response.end(index);
         console.log('index');
     }
     else if (isUrlCorrect('/rect', request.url)) {
-        response.writeHead(200, {'Content-Type': 'text/html'});
+        response.writeHead(200, {'Content-Type': 'text/html', 'Access-Control-Allow-Origin': '*'});
         response.end(rect);
         console.log('rect');
     }
     else {
-        response.writeHead(200, {'Content-Type': 'text/html'});
+        response.writeHead(200, {'Content-Type': 'text/html', 'Access-Control-Allow-Origin': '*'});
         response.end(error404);
         console.log('404');
     }
