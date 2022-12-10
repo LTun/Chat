@@ -102,8 +102,13 @@ http.createServer((request, response) => {
     console.log();
     console.log(request.socket.remoteAddress);
     console.log(request.url);
-    
-    if (isUrlCorrect('/post', request.url)) {
+
+    if (isUrlCorrect('/dataCount', request.url)) {
+        response.writeHead(200, {'Content-Type': 'text/plain'});
+        response.end(String(data.length));
+        console.log('dataCount');
+    }
+    else if (isUrlCorrect('/post', request.url)) {
         if (request.method === 'POST') {
             let body = '';
     
@@ -127,11 +132,6 @@ http.createServer((request, response) => {
             response.writeHead(200);
             response.end();
         }
-    }
-    else if (isUrlCorrect('/dataCount', request.url)) {
-        response.writeHead(200, {'Content-Type': 'text/plain'});
-        response.end(String(data.length));
-        console.log('dataCount');
     }
     else if (isUrlCorrect('/data', request.url)) {
         response.writeHead(200, {'Content-Type': 'text/plain'});
