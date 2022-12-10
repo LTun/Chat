@@ -7,7 +7,7 @@
     <title>Chat beta-v.0.1</title>
     <script>
         // server ip
-        var hostIp = 'http://192.168.1.146:8080'
+        const hostIp = 'http://192.168.1.146:8080'
     </script>
     <style>
         ol.messages {
@@ -113,11 +113,51 @@
             req.send(JSON.stringify(object));
         }
 
+        function isStartWith(correct, msg) {
+            if (correct > msg)
+                return false;
+
+            for (let i = 0; i < correct.length; i++) {
+                if (correct[i] !== msg[i])
+                    return false;
+            }
+            return true;
+        }
+        
+        function siteName(msg) {
+            let space = msg.indexOf(' ');
+
+            if (space != -1) {
+                let name = msg.slice(space + 1, msg.length);
+                name = name.replace(/\s+/g, '');
+                
+                if (name) 
+                    return name;
+            }
+
+            let first = msg.indexOf('.');
+            let second = msg.indexOf('.', first + 1);
+
+            if (first + 1 >= msg.length)
+                return 'Invalid site name';
+
+            return msg.slice(first + 1, second);
+        }
+
+        function process(msg) {
+            if (msg.length > 4) {
+                if (isStartWith('http', msg)) {
+                    return '<a href="' + msg + '">' + siteName(msg) + '</a>'
+                }
+            }
+            return msg;
+        }
+
         input.addEventListener('keypress', function(event) {
             if (event.keyCode == 13 || event.which == 13) {
                 if (username.value != '') {
                     if (input.value) {
-                        postMessage(username.value, input.value);
+                        postMessage(username.value, process(input.value));
                         input.value = '';
                     }
                 }
@@ -131,7 +171,7 @@
             if (input.value) {
                 if (username.value) {
                     // createMessage(username.value, input.value, time.getHours() + 'h' + time.getMinutes() + 'm');
-                    postMessage(username.value, input.value);
+                    postMessage(username.value, process(input.value));
                     input.value = '';
                 }
                 else {
