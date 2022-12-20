@@ -1,12 +1,25 @@
 
-var http = require('http');
+const https = require('https');
+// const http = require('http');
 
-var fs = require('fs');
+const fs = require('fs');
+
+const option = {
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem')
+};
+
+const password = 'Ugoku,Ugoku';
 
 // var qs = require('queryString');
 
 const index = fs.readFileSync('index.html', (err) => {
     console.log('fs.readFileSync: cannot read file "index.html"');
+    console.log(err.message);
+});
+
+const chat = fs.readFileSync('chat.html', (err) => {
+    console.log('fs.readFileSync: cannot read file "chat.html"');
     console.log(err.message);
 });
 
@@ -19,6 +32,12 @@ const error404 = fs.readFileSync('error404.html', (err) => {
     console.log('fs.readFileSync: cannot read file "rect.html"');
     console.log(err.message);
 });
+
+const loginBackground = fs.readFileSync('image/2.jpg', (err) => {
+    console.log('fs.readFileSync: cannot read file "image/2.jpg"');
+    console.log(err.message);
+});
+
 
 // var countData;
 // var data;
@@ -98,7 +117,7 @@ function writeData() {
     });
 }
 
-http.createServer((request, response) => {
+function server(request, response) {
     console.log();
     console.log(request.socket.remoteAddress);
     console.log(request.url);
@@ -108,8 +127,8 @@ http.createServer((request, response) => {
         response.end(String(data.length));
         console.log('dataCount');
     }
-    else if (isUrlCorrect('/post', request.url)) {
-        if (request.method === 'POST') {
+    else if (request.method === 'POST') {
+        if (isUrlCorrect('/post', request.url)) {
             let body = '';
     
             request.on('data', (data2) => {
@@ -129,8 +148,33 @@ http.createServer((request, response) => {
                 console.log(tempData);
             });
 
-            response.writeHead(200);
+            response.writeHead(200, {'Access-Control-Allow-Origin': '*'});
             response.end();
+        }
+        else if (isUrlCorrect('/login', request.url)){
+            let body = '';
+
+            request.on('data', (data2) => {
+                body += data2;
+
+                if (body.length > 1e6)
+                    request.destroy();
+            });
+
+            response.writeHead(200, {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*'})
+
+            request.on('end', () => {
+                tempData = JSON.parse(body);
+
+                if (tempData.passwd === password && tempData.username) {
+                    response.end('/LTunChat?username=' + tempData.username);
+                }
+                else {
+                    response.end('wrong');
+                }
+
+                console.log(tempData);
+            });
         }
     }
     else if (isUrlCorrect('/data', request.url)) {
@@ -143,6 +187,16 @@ http.createServer((request, response) => {
         response.end(index);
         console.log('index');
     }
+    else if (isUrlCorrect('/LTunChat', request.url)) {
+        response.writeHead(200, {'Content-Type': 'text/html', 'Access-Control-Allow-Origin': '*'});
+        response.end(chat);
+        console.log('chat');
+    }
+    else if (isUrlCorrect('/image/2.jpg', request.url)) {
+        response.writeHead(200, {'Content-Type': 'image/jpeg', 'Access-Control-Allow-Origin': '*'});
+        response.end(loginBackground);
+        console.log('loginBackground');
+    }
     else if (isUrlCorrect('/rect', request.url)) {
         response.writeHead(200, {'Content-Type': 'text/html', 'Access-Control-Allow-Origin': '*'});
         response.end(rect);
@@ -153,9 +207,11 @@ http.createServer((request, response) => {
         response.end(error404);
         console.log('404');
     }
-    
-}).listen(8080);
+}
 
-console.log('Server created on port: 8080.');
+https.createServer(option, server).listen(443);
+// http.createServer(server).listen(80);
+
+console.log('Server created on port: 443.');
 
 console.log(data);

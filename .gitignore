@@ -1,3 +1,6 @@
 
 # message storage
 data/data.txt
+
+*.pem
+*.crt

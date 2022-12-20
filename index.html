@@ -2,246 +2,219 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat beta-v.0.1</title>
-    <script>
-        // server ip
-        const hostIp = 'http://192.168.1.146:8080'
-    </script>
+    <title>Login</title>
     <style>
-        ol.messages {
-            list-style: none;
+        * {
+            margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+        .root {
+            width: 100vw;
+            height: 100vh;
+            background: url(image/2.jpg) center center no-repeat;
+            background-size: cover;
+            position: relative;
+        }
+        .login {
+            width: 450px;
+            height: 500px;
+            border-radius: 5px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            backdrop-filter: blur(4px);
+            border: 2px solid black;
+        }
+        .center {
+            width: 300px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);   
+        }
+        .username, .passwd, .button {
+            background-color: white;
+            height: 35px;
+            border-radius: 5px;
+            text-align: center;
+            line-height: 35px;
+            box-shadow: 2px 2px 4px black;
+        }
+        input[type=text], input[type=password] {
+            border: 0;
+            border-radius: 5px;
             display: block;
-            width: 600px;
-            height: 700px;
-            overflow: scroll;
-        }
-        
-        .messages li {
-            display: block;
-        }
-
-        .clearfix::after {
-            content: "";
-            clear: both;
-            display: table;
-        }
-
-        .name, .body, .oclock {
-            display: inline-block;
-            overflow: hidden;
-            float: left;
-        }
-        .name {
-            width: 100px;
+            width: 100%;
             height: 100%;
+            line-height: 20px;
+            padding: 0 15px;
+            color: rgb(255, 131, 158);
         }
-        .body {
-            width: 380px;
+        input[type=text], input[type=password] {
+            outline: 0;
         }
-        .oclock {
-            height: 100%;
-            float: right;
+        .username, .passwd {
+            margin-bottom: 50px;
+        }
+        .passwdContainer {
+            height: 35px;
+        }
+        .button {
+            width: 40%;
+            height: 45px;
+            cursor: pointer;
+            line-height: 40px;
+            position: relative;
+            left: 50%;
+            transform: translate(-50%, 0);
+            transition: all 0.2s;
+        }
+        .button:hover {
+            transform: translate(-55%, -8px);
+            box-shadow: 6px 10px 4px black;
+            background-color: rgba(32, 32, 32, 0.459);
+            color: rgb(255, 131, 158);
         }
     </style>
 </head>
 <body>
-    Username:&nbsp;&nbsp;&nbsp;<input class="username" type="text"> <br>
-    <br>
-    <br>
-    <input class="input" type="text"><button>Send</button>
-    <ol class="messages">
-    </ol>
+    <div class="root">
+        <div class="login">
+            <div class="center">
+                <div class="username"><input type="text" value="username" style="color: lightgray;"></div>
+                <div class="passwd"><input type="text" value="password" style="color: lightgray;"></div>
+                <div class="button">Login</div>
+            </div>
+        </div>
+    </div>
     <script>
-        var ol = document.querySelector('.messages');
-        var input = document.querySelector('.input');
-        var button = document.querySelector('button');
-        var username = document.querySelector('.username');
+        const serverIp = 'https://' + location.hostname + ':' + location.port;
 
-        var dataCount = 0;
+        var inputs = document.querySelectorAll('input');
+        var button = document.querySelector('.button');
 
-        function createMessage(uid, content, time) {
-            let name = document.createElement('p');
-            let body = document.createElement('p');
-            let oclock = document.createElement('p');
-            let message = document.createElement('li');
+        var blockLoginRequest = false;
 
-            name.innerHTML = uid + ':';
-            body.innerHTML = content;
-            oclock.innerHTML = time;
-
-            // name.style.display = 'inline-block';
-            // name.style.height = '100%';
-            // name.style.width = '100px';
-            // name.style.overflow = 'hidden';
-            // name.style.cssFloat = 'left';
-            // body.style.display = 'inline-block';
-            // body.style.width = '380px';
-            // body.style.cssFloat = 'left';
-            // oclock.style.display = 'inline-block';
-            // oclock.style.cssFloat = 'right';
-
-            name.className = 'name';
-            body.className = 'body';
-            oclock.className = 'oclock';
-
-            message.className = 'clearfix';
-
-            message.appendChild(name);
-            message.appendChild(body);
-            message.appendChild(oclock);
-            ol.appendChild(message);
-        }
-        
-        function postMessage(username, msg) {
-            let object = {username: username, msg: msg};
-
-            console.log(object);
-
-            let req = new XMLHttpRequest();
-
-            req.open('POST', hostIp + '/post');
-			
-			req.onreadystatechange = function() {
-				if (this.readyState === 4 && this.status === 200) {
-					console.log(this);
-				}
-			}
-			
-            req.send(JSON.stringify(object));
-        }
-
-        function isStartWith(correct, msg) {
-            if (correct > msg)
-                return false;
-
-            for (let i = 0; i < correct.length; i++) {
-                if (correct[i] !== msg[i])
-                    return false;
+        inputs[0].onfocus = function() {
+            if (this.value === 'username') {
+                this.value = '';
+                this.style.color = 'rgb(255, 131, 158)';
             }
-            return true;
         }
-        
-        function siteName(msg) {
-            let space = msg.indexOf(' ');
-
-            if (space != -1) {
-                let name = msg.slice(space + 1, msg.length);
-                name = name.replace(/\s+/g, '');
-                
-                if (name) 
-                    return name;
+        inputs[0].onblur = function() {
+            if (this.value === '') {
+                this.value = 'username';
+                this.style.color = 'lightgray';
             }
-
-            let first = msg.indexOf('.');
-            let second = msg.indexOf('.', first + 1);
-
-            if (first + 1 >= msg.length)
-                return 'Invalid site name';
-
-            return msg.slice(first + 1, second);
         }
 
-        function process(msg) {
-            if (msg.length > 4) {
-                if (isStartWith('http', msg)) {
-                    return '<a href="' + msg + '">' + siteName(msg) + '</a>'
-                }
+        inputs[1].onfocus = function() {
+            if (this.value === 'password') {
+                this.value = '';
+                this.style.color = 'rgb(255, 131, 158)';
+                this.type = 'password';
             }
-            return msg;
+        }
+        inputs[1].onblur = function() {
+            if (this.value === '') {
+                this.value = 'password';
+                this.style.color = 'lightgray';
+                this.type = 'text';
+            }
         }
 
-        input.addEventListener('keypress', function(event) {
-            if (event.keyCode == 13 || event.which == 13) {
-                if (username.value != '') {
-                    if (input.value) {
-                        postMessage(username.value, process(input.value));
-                        input.value = '';
+        function unblockLogin() {
+            blockLoginRequest = false;
+        }
+
+        function sendLogin(object) {
+                let req = new XMLHttpRequest();
+
+                blockLoginRequest = true;
+
+                setTimeout(unblockLogin, 5000);
+    
+                req.open('POST', serverIp + '/login');
+    
+                req.onreadystatechange = function() {
+                    if (this.readyState === 4 && this.status === 200) {
+                        if (this.responseText !== 'wrong') {
+                            location.href = serverIp + this.response;
+                        }
+                        else {
+                            inputs[1].value = '';
+                            alert('Password wrong, please retry after 5 seconds.');
+                        }
                     }
+                };
+
+                req.send(JSON.stringify(object));
+        }
+
+        button.addEventListener('click', function() {
+            if (!blockLoginRequest) {
+                let username = inputs[0].value;
+                username = username.replace(/\s+/g, '');
+                let passwd = inputs[1].value;
+    
+    
+                if (username && passwd) {
+                    let object = {
+                        username: username,
+                        passwd: passwd
+                    };
+    
+                    sendLogin(object);
                 }
-                else {
-                    alert('Please enter your name.');
-                }
+            }
+            else if (blockLoginRequest) {
+                alert('Please retry after 5 seconds.');
             }
         });
 
-        button.addEventListener('click', (event) => {
-            if (input.value) {
-                if (username.value) {
-                    // createMessage(username.value, input.value, time.getHours() + 'h' + time.getMinutes() + 'm');
-                    postMessage(username.value, process(input.value));
-                    input.value = '';
+        inputs[0].addEventListener('keypress', function(event) {
+            if (event.keyCode === 13 && !blockLoginRequest) {
+                let username = inputs[0].value;
+                username = username.replace(/\s+/g, '');
+                let passwd = inputs[1].value;
+    
+    
+                if (username && passwd) {
+                    let object = {
+                        username: username,
+                        passwd: passwd
+                    };
+    
+                    sendLogin(object);
                 }
-                else {
-                    alert('Please enter your name.');
-                }
+            }
+            else if (blockLoginRequest) {
+                alert('Please retry after 5 seconds.');
             }
         });
 
-        function refreshMessages() {
-            let req = new XMLHttpRequest();
-            req.open('GET', hostIp + '/data');
-
-            req.onreadystatechange = function() {
-                if (this.readyState === 4 && this.status === 200) {
-                    let data = JSON.parse(this.responseText);
-
-                    console.log(ol.scrollTop, ol.scrollHeight)
-
-                    let scroll = false;
-                    if (ol.scrollTop + ol.clientHeight === ol.scrollHeight)
-                        scroll = true;
-
-                    for (let i = dataCount; i < data.length; i++) {
-                        console.log('create');
-                        createMessage(data[i].username, data[i].msg, data[i].time);
-                    }
-                    if (scroll)
-                        ol.scrollTop = ol.scrollHeight;
-
-                    dataCount = data.length;
-                    console.log(data);
-
-                    console.log(ol.scrollTop, ol.scrollHeight)
+        inputs[1].addEventListener('keypress', function(event) {
+            if (event.keyCode === 13 && !blockLoginRequest) {
+                let username = inputs[0].value;
+                username = username.replace(/\s+/g, '');
+                let passwd = inputs[1].value;
+    
+    
+                if (username && passwd) {
+                    let object = {
+                        username: username,
+                        passwd: passwd
+                    };
+    
+                    sendLogin(object);
                 }
             }
-
-            try {
-                req.send();
+            else if (blockLoginRequest) {
+                alert('Please retry after 5 seconds.');
             }
-            catch (err) {
-                console.log(err.message);
-                console.log('GET request failed: data')
-            }
-
-        }
-
-        // http get data
-        setInterval(function() {
-            let req = new XMLHttpRequest();
-            req.open('GET', 'http://192.168.1.146:8080/dataCount');
-            req.onreadystatechange = function() {
-                if (this.readyState === 4 && this.status === 200) {
-                    if (this.responseText != dataCount) {
-                        refreshMessages();
-                    }
-                }
-            }
-
-            try {
-                req.send();
-            }
-            catch (err) {
-                console.log(err.message);
-                console.log('GET request failed: dataCount');
-            }
-        }, 1000);
-
-        // show data with length
-
-        // referesh width setInterval()
+        });
     </script>
 </body>
 </html>
